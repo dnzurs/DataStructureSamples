@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/DataStructuresSamples/.vs/DataStructuresSamples/v15
+/DataStructuresSamples/Assignment_1/Debug/Assignment_1.tlog
+/DataStructuresSamples/Assignment_1/Debug/Assignment_1.log
+/DataStructuresSamples/Assignment_2/Debug/Assignment_2.tlog
+/DataStructuresSamples/Assignment_2/Debug/Assignment_2.log
+/DataStructureSamples
+/DataStructureSamples
