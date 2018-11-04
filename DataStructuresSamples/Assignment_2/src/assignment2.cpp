@@ -37,13 +37,13 @@
 //============================================================================//
 //------------------------------------------------------------------------------
 struct occur_node {
-	unsigned char character;
+	char character;
 	occur_node *next;
 	int occurence;
 };
 //------------------------------------------------------------------------------
 struct vocab_node {
-	unsigned char character;
+	char character;
 	vocab_node *next;
 	occur_node *list;
 };
@@ -112,7 +112,10 @@ int main(int argc, char *argv[])
 	model.vocabularylist->print();
 
 	// show probability of charachters
-	//std::cout << model.calculateProbability(firstChar, secondChar);
+	std::cout << "\n";
+	std::cout << "Occurence : " << model.vocabularylist->get_occurence(firstChar) << "\n";
+	std::cout << "Co-Occurence : " << model.vocabularylist->get_union_occurence(firstChar, secondChar) << "\n";
+	std::cout << model.calculateProbability(firstChar, secondChar) << "\n";
 
 	system("Pause");
     return 0;
@@ -129,8 +132,8 @@ void vocab_list::create()
 	this->head = (vocab_node *)malloc(sizeof(vocab_node));
 
 	this->head->character = 0;
-	this->head->next = NULL;
-	this->head->list = NULL;
+	this->head->next = nullptr;
+	this->head->list = nullptr;
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -141,31 +144,37 @@ void vocab_list::print()
 
 	while (true)
 	{
-		std::cout << currVocabNode->character << ":\n";
-
-		while (true)
+		if (currVocabNode->character != 0)
 		{
-			if (currVocabNode->list != NULL)
-			{
-				std::cout << "\t<" << currOccurNode->character << "," << currOccurNode->occurence << ">";
+			std::cout << currVocabNode->character << ":\n";
 
-				if (currOccurNode->next == NULL)
+			while (true)
+			{
+				if (currVocabNode->list != nullptr)
+				{
+					std::cout << "\t<" << currOccurNode->character << "," << currOccurNode->occurence << ">";
+				}
+				else
 				{
 					break;
 				}
 
 				std::cout << "\n";
 
+				if (currOccurNode->next == nullptr)
+				{
+					break;
+				}
+
 				currOccurNode = currOccurNode->next;
 			}
 		}
 
-		if (currVocabNode->next == NULL)
+		if (currVocabNode->next == nullptr)
 		{
 			break;
 		}
 
-		std::cout << "\n";
 		currVocabNode = currVocabNode->next;
 		currOccurNode = currVocabNode->list;
 	}
@@ -175,7 +184,7 @@ void vocab_list::print()
 void vocab_list::add_char(char character)
 {
 	// to insert first value 
-	if (this->head->character == 0 && this->head->next == NULL && this->head->list == NULL)
+	if (this->head->character == 0 && this->head->next == nullptr && this->head->list == nullptr)
 	{
 		this->head->character = character;
 	}
@@ -192,7 +201,7 @@ void vocab_list::add_char(char character)
 				break;
 			}
 
-			if (currVocabNode->next == NULL)
+			if (currVocabNode->next == nullptr)
 			{
 				break;
 			}
@@ -214,17 +223,7 @@ void vocab_list::add_char(char character)
 				{
 					if (isalpha(character))
 					{
-						if (character > currVocabNode->character && currVocabNode->next == NULL)
-						{
-							currVocabNode->next = (vocab_node *)malloc(sizeof(vocab_node));
-
-							currVocabNode->next->character = character;
-							currVocabNode->next->next = NULL;
-							currVocabNode->next->list = NULL;
-
-							break;
-						}
-						else if (character < currVocabNode->character || !isalpha(currVocabNode->character))
+						if (!isalpha(currVocabNode->character) || character < currVocabNode->character)
 						{
 							vocab_node *newNode = (vocab_node *)malloc(sizeof(vocab_node));
 
@@ -233,21 +232,31 @@ void vocab_list::add_char(char character)
 							newNode->next = currVocabNode->next;
 
 							currVocabNode->character = character;
-							currVocabNode->list = NULL;
+							currVocabNode->list = nullptr;
 							currVocabNode->next = newNode;
+
+							break;
+						}
+						else if (character > currVocabNode->character && currVocabNode->next == nullptr)
+						{
+							currVocabNode->next = (vocab_node *)malloc(sizeof(vocab_node));
+
+							currVocabNode->next->character = character;
+							currVocabNode->next->next = nullptr;
+							currVocabNode->next->list = nullptr;
 
 							break;
 						}
 					}
 					else // for punctuation marks
 					{
-						if (currVocabNode->next == NULL)
+						if (currVocabNode->next == nullptr)
 						{
 							currVocabNode->next = (vocab_node *)malloc(sizeof(vocab_node));
 
 							currVocabNode->next->character = character;
-							currVocabNode->next->next = NULL;
-							currVocabNode->next->list = NULL;
+							currVocabNode->next->next = nullptr;
+							currVocabNode->next->list = nullptr;
 
 							break;
 						}
@@ -270,13 +279,13 @@ void vocab_list::add_occurence(char firstChar, char secondChar)
 	{
 		if (currVocabNode->character == firstChar)
 		{
-			if (currVocabNode->list == NULL)
+			if (currVocabNode->list == nullptr)
 			{
 				currVocabNode->list = (occur_node *)malloc(sizeof(occur_node));
 
 				currVocabNode->list->character = secondChar;
 				currVocabNode->list->occurence = 1;
-				currVocabNode->list->next = NULL;
+				currVocabNode->list->next = nullptr;
 
 				break;
 			}
@@ -295,13 +304,13 @@ void vocab_list::add_occurence(char firstChar, char secondChar)
 					}
 					else
 					{
-						if (currOccurNode->next == NULL)
+						if (currOccurNode->next == nullptr)
 						{
 							currOccurNode->next = (occur_node *)malloc(sizeof(occur_node));
 
 							currOccurNode->next->character = secondChar;
 							currOccurNode->next->occurence = 1;
-							currOccurNode->next->next = NULL;
+							currOccurNode->next->next = nullptr;
 
 							isFinished = true;
 							break;
@@ -325,28 +334,93 @@ void vocab_list::add_occurence(char firstChar, char secondChar)
 //------------------------------------------------------------------------------
 int vocab_list::get_occurence(char character)
 {
+	vocab_node *currVocabNode = this->head;
+	occur_node *currOccurNode = nullptr;
+	int occurence = 0;
 
-	return 0;
+	// find character in model
+	while (true)
+	{
+		if (currVocabNode->character == character)
+		{
+			currOccurNode = currVocabNode->list;
+			break;
+		}
+
+		currVocabNode = currVocabNode->next;
+	}
+
+	// if there is character, find occurence
+	if (currOccurNode != nullptr)
+	{
+		while (true)
+		{
+			occurence += currOccurNode->occurence;
+
+			if (currOccurNode->next == nullptr)
+			{
+				break;
+			}
+
+			currOccurNode = currOccurNode->next;
+		}
+	}
+
+	return occurence;
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-int vocab_list::get_union_occurence(char, char)
+int vocab_list::get_union_occurence(char firstChar, char secondChar)
 {
+	vocab_node *currVocabNode = this->head;
+	occur_node *currOccurNode = nullptr;
+	int co_occurence = 0;
 
-	return 0;
+	// find first character in model
+	while (true)
+	{
+		if (currVocabNode->character == firstChar)
+		{
+			currOccurNode = currVocabNode->list;
+			break;
+		}
+
+		currVocabNode = currVocabNode->next;
+	}
+
+	// if there is occurence with second character, find co_occurence
+	if (currOccurNode != nullptr)
+	{
+		while (true)
+		{
+			if (currOccurNode->character == secondChar)
+			{
+				co_occurence = currOccurNode->occurence;
+			}
+			
+			if (currOccurNode->next == nullptr)
+			{
+				break;
+			}
+
+			currOccurNode = currOccurNode->next;
+		}
+	}
+
+	return co_occurence;
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void language_model::readData(const char *inputFile)
 {
 	int retVal = 0;
-	FILE *fd = NULL;
+	FILE *fd = nullptr;
 
 	fd = fopen(inputFile, "r");
-	if (fd != NULL)
+	if (fd != nullptr)
 	{
-		unsigned char currChar = 0;
-		unsigned char prevChar = 0;
+		char currChar = 0;
+		char prevChar = 0;
 
 		// create vocabulary list
 		this->vocabularylist->create();
@@ -360,49 +434,59 @@ void language_model::readData(const char *inputFile)
 				break;
 			}
 
+			// if there is newline character, continue for next
+			if (currChar == '\n')
+			{
+				continue;
+			}
+
+			// if character is an alphetical character(small or big), to low this character (as A -> a, a -> a)
 			if (isalpha(currChar))
 			{
 				currChar = tolower(currChar);
 			}
 
+			// add character to model
 			this->vocabularylist->add_char(currChar);
 
+			// if character is a first character of file, continue to read next one. But if it is second, add occurunce to model
 			if (currChar != 0 && prevChar != 0)
 			{
 				this->vocabularylist->add_occurence(prevChar, currChar);
 			}
 
+			// update previous character as current character for next step
 			prevChar = currChar;
 		}
-
-#if DEBUG
-		vocab_node *currNode = this->vocabularylist->head;
-
-		while (true)
-		{
-			std::cout << currNode->character << " ";
-
-			if (currNode->next == NULL)
-			{
-				break;
-			}
-
-			currNode = currNode->next;
-		}
-
-		std::cout << "\n";
-#endif
 
 		fclose(fd);
 	}
 	else
 	{
-		printf("File is not opened\n");
+		printf("Could not open file\n");
 	}
+
+#if DEBUG
+	vocab_node *currNode = this->vocabularylist->head;
+
+	while (true)
+	{
+		std::cout << currNode->character << " ";
+
+		if (currNode->next == nullptr)
+		{
+			break;
+		}
+
+		currNode = currNode->next;
+	}
+
+	std::cout << "\n";
+#endif
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 double language_model::calculateProbability(char firstChar, char secondChar)
 {
-	return 0;
+	return static_cast<double>(this->vocabularylist->get_union_occurence(firstChar, secondChar)) / (double)(this->vocabularylist->get_occurence(firstChar));
 }
