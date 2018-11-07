@@ -113,6 +113,11 @@
   <ItemGroup>
     <ClCompile Include="src\assignment2.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="src\assignment2_test\english-input.txt" />
+    <Text Include="src\assignment2_test\input.txt" />
+    <Text Include="src\assignment2_test\turkish-input.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

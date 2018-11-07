@@ -628,8 +628,13 @@ void language_model::readData(const char *inputFile)
 			}
 
 			// if there is newline or null characters, continue for next byte
-			if (currChar == '\n' || currChar == '\0') // TODO : \n gelince curr ve prev i sýfýrla ? yoksa son karakterin pðeþine gelmiþ gibi davranýyor
+			if (currChar == '\n' || currChar == '\0') 
 			{
+				if (currChar == '\n') // if it is end of line, reset the characters for adding characters of new sentence
+				{
+					currChar = 0;
+					prevChar = 0;
+				}
 				continue;
 			}
 
