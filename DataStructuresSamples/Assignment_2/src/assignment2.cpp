@@ -16,6 +16,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
+#include <string>
 #include <cstring>
 #include <stdlib.h>
 #include <stdio.h>
@@ -26,7 +27,7 @@
 #define FILE_NAME_LENGTH			(256)
 #define TURKISH_CHAR_COUNT			(12) 
 #define TURKISH_CHAR_COUNT_CMDLINE	(7)  
-#define CHARACTER_COUNT				(32) 
+#define CHARACTER_COUNT				(33) 
 
 #define DEBUG						(1) // If it is 1, the unique letters of model are shown
 
@@ -68,7 +69,7 @@ struct char_set {
 };
 //------------------------------------------------------------------------------
 struct charTable {
-	char character;
+	std::string character;
 	char index;
 	char charVal;
 };
@@ -111,38 +112,39 @@ static char_set specialTurkishCharSetCmdLine[TURKISH_CHAR_COUNT_CMDLINE] =
 // Alphetical Sort Map for Characters
 static charTable characterTable[CHARACTER_COUNT] =
 {
-	{ 'a',		-32,	0x61 },	// 
-	{ 'b',		-31,	0x62 },	// 
-	{ 'c',		-30,	0x63 },	// 
-	{ 'ç',		-29,	-1 },	// 
-	{ 'd',		-28,	0x64 },	// 
-	{ 'e',		-27,	0x65 },	// 
-	{ 'f',		-26,	0x66 },	// 
-	{ 'g',		-25,	0x67 },	// 
-	{ 'ð',		-24,	-2 },	// 
-	{ 'h',		-23,	0x68 }, // 
-	{ 'ý',		-22,	-3 },   // 
-	{ 'i',		-21,	0x69 }, // 
-	{ 'j',		-20,	0x6A }, // 
-	{ 'k',		-19,	0x6B }, // 
-	{ 'l',		-18,	0x6C }, // 
-	{ 'm',		-17,	0x6D }, // 
-	{ 'n',		-16,	0x6E }, // 
-	{ 'o',		-15,	0x6F }, //
-	{ 'ö',		-14,	-4 },   // 
-	{ 'p',		-13,	0x70 }, // 
-	{ 'q',		-12,	0x71 }, // 
-	{ 'r',		-11,	0x72 }, // 
-	{ 's',		-10,	0x73 }, // 
-	{ 'þ',		-9,		-5 },   // 
-	{ 't',		-8,		0x74 }, // 
-	{ 'u',		-7,		0x75 }, // 
-	{ 'ü',		-6,		-6 },   // 
-	{ 'v',		-5,		0x76 }, // 
-	{ 'w',		-4,		0x77 }, // 
-	{ 'x',		-3,		0x78 }, // 
-	{ 'y',		-2,		0x79 }, // 
-	{ 'z',		-1,		0x7A }, //
+	{ "a",		-32,	0x61 },	// 
+	{ "b",		-31,	0x62 },	// 
+	{ "c",		-30,	0x63 },	// 
+	{ "ç",		-29,	-1 },	// 
+	{ "d",		-28,	0x64 },	// 
+	{ "e",		-27,	0x65 },	// 
+	{ "f",		-26,	0x66 },	// 
+	{ "g",		-25,	0x67 },	// 
+	{ "ð",		-24,	-2 },	// 
+	{ "h",		-23,	0x68 }, // 
+	{ "ý",		-22,	-3 },   // 
+	{ "i",		-21,	0x69 }, // 
+	{ "j",		-20,	0x6A }, // 
+	{ "k",		-19,	0x6B }, // 
+	{ "l",		-18,	0x6C }, // 
+	{ "m",		-17,	0x6D }, // 
+	{ "n",		-16,	0x6E }, // 
+	{ "o",		-15,	0x6F }, //
+	{ "ö",		-14,	-4 },   // 
+	{ "p",		-13,	0x70 }, // 
+	{ "q",		-12,	0x71 }, // 
+	{ "r",		-11,	0x72 }, // 
+	{ "s",		-10,	0x73 }, // 
+	{ "þ",		-9,		-5 },   // 
+	{ "t",		-8,		0x74 }, // 
+	{ "u",		-7,		0x75 }, // 
+	{ "ü",		-6,		-6 },   // 
+	{ "v",		-5,		0x76 }, // 
+	{ "w",		-4,		0x77 }, // 
+	{ "x",		-3,		0x78 }, // 
+	{ "y",		-2,		0x79 }, // 
+	{ "z",		-1,		0x7A }, //
+	{ "<SP>",   0x20,	0x20 }, //
 };
 
 //============================================================================//
@@ -192,8 +194,10 @@ static char getIndexOfChar(char character)
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-static char getCharWithIndex(char index)
+std::string getCharWithIndex(char index)
 {
+	std::string tempStr(1, index);
+
 	for (int i = 0; i < CHARACTER_COUNT; i++)
 	{
 		if (index == characterTable[i].index)
@@ -202,7 +206,7 @@ static char getCharWithIndex(char index)
 		}
 	}
 
-	return index;
+	return tempStr;
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -314,33 +318,13 @@ void vocab_list::print()
 	{
 		if (currVocabNode->character != 0)
 		{
-			tempChar = getCharWithIndex(currVocabNode->character);
-
-			if (tempChar == ' ')
-			{
-				std::cout << "<SP>" << ":\n";
-			}
-			else
-			{
-				std::cout << getCharWithIndex(currVocabNode->character) << ":\n";
-			}
+			std::cout << getCharWithIndex(currVocabNode->character) << ":\n";
 
 			while (true)
 			{
 				if (currVocabNode->list != NULL)
 				{
-					tempChar = getCharWithIndex(currOccurNode->character);
-
-					if (tempChar == ' ')
-					{
-						std::cout << "\t<" << "<SP>" << "," << currOccurNode->occurence << ">";
-					}
-					else
-					{
-						std::cout << "\t<" << tempChar << "," << currOccurNode->occurence << ">";
-
-					}
-
+					std::cout << "\t<" << getCharWithIndex(currOccurNode->character) << "," << currOccurNode->occurence << ">";
 				}
 				else
 				{
