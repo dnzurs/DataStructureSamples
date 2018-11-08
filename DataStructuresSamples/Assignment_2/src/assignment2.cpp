@@ -237,6 +237,34 @@ static char getTurkishIndexOfCharFromCmdLine(char character)
 	return index;
 }
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+static void freeMemory(language_model *model)
+{
+	vocab_node *currVocabNode = model->vocabularylist->head;
+	vocab_node *nextVocabNode;
+	occur_node *currOccurNode;
+	occur_node *nextOccurNode;
+
+	while (currVocabNode != NULL)
+	{
+		nextVocabNode = currVocabNode->next;
+		currOccurNode = currVocabNode->list;
+
+		while (currOccurNode != NULL)
+		{
+			nextOccurNode = currOccurNode->next;
+			free(currOccurNode);
+			currOccurNode = nextOccurNode;
+		}
+
+		free(currVocabNode);
+		currVocabNode = nextVocabNode;		
+	}
+
+	free(model->vocabularylist);
+}
+
 //============================================================================//
 //============================ PUBLIC FUNCTIONS ==============================//
 //============================================================================//
@@ -256,8 +284,9 @@ int main(int argc, char *argv[])
 	if (argc != 4 && argc != 2)
 	{
 		std::cout << "ERROR : Invalid Argument\n";
+#if _WIN32
 		system("Pause");
-
+#endif		
 		return -1;
 	}
 
@@ -285,6 +314,9 @@ int main(int argc, char *argv[])
 	{
 		std::cout << "P(" << getCharWithIndex(getIndexOfChar(firstChar)) << "|" << getCharWithIndex(getIndexOfChar(secondChar)) <<") = " << model.calculateProbability(getIndexOfChar(firstChar), getIndexOfChar(secondChar)) << "\n";
 	}
+
+	//free memory for protection of memory leakage
+	freeMemory(&model);
 
 #if _WIN32
 	system("Pause");
