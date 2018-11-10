@@ -29,7 +29,7 @@
 #define TURKISH_CHAR_COUNT_CMDLINE	(7)  
 #define CHARACTER_COUNT				(33) 
 
-#define DEBUG						(1) // If it is 1, the unique letters of model are shown
+#define DEBUG						(0) // If it is 1, the unique letters of model are shown
 
 //============================================================================//
 //=========================== TYPE DEFINITIONS ===============================//
@@ -321,7 +321,6 @@ int main(int argc, char *argv[])
 #if _WIN32
 	system("Pause");
 #endif
-
     return 0;
 }
 
