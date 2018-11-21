@@ -23,6 +23,19 @@
 //============================================================================//
 //=========================== TYPE DEFINITIONS ===============================//
 //============================================================================//
+struct Node {
+	int data;
+	Node *next;
+};
+
+struct Deck{
+	Node *head;
+	void create();
+	void close();
+	void push(int val);
+	int  pop();
+	bool isempty();
+};
 
 //============================================================================//
 //========================== FUNCTION PROTOTYPES =============================//
@@ -39,10 +52,16 @@
 int main(int argc, char *argv[])
 {
 	char fileName[FILE_NAME_LENGTH] = { 0 };
+	int playerDeckCount = 0; // second value of first line
+	int tableDeckCount = 0;	// first value of first line
+	Deck tableDeck;
+	Deck binDeck;
+	Deck firstPlayerDeck;
+	Deck secondPlayerDeck;
 
 	if (argc != 2)
 	{
-		std::cout << "ERROR : Invalid Argument\n";
+		std::cout << "ERROR : Invalid Argument\n" << std::endl;
 #if _WIN32
 		system("Pause");
 #endif		
@@ -65,3 +84,51 @@ int main(int argc, char *argv[])
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+void Deck::create()
+{
+	head = NULL;
+}
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Deck::close()
+{
+	Node *p;
+	
+	while (head) 
+	{
+		p = head;
+		head = head->next;
+		delete p;
+	}
+}
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Deck::push(int val)
+{
+	Node *newNode = new Node;
+
+	newNode->data = val;
+	newNode->next = head;
+	head = newNode;
+}
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+int Deck::pop()
+{
+	Node *topNode;
+	int temp;
+
+	topNode = head;
+	head = head->next;
+	temp = topNode->data;
+
+	delete topNode;
+
+	return temp;
+}
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+bool Deck::isempty()
+{
+	return head == NULL;
+}
