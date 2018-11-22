@@ -35,11 +35,14 @@ struct Deck{
 	void push(int val);
 	int  pop();
 	bool isempty();
+	int fillDeck(int val);
 };
 
 //============================================================================//
 //========================== FUNCTION PROTOTYPES =============================//
 //============================================================================//
+bool isAvailableVal(int val);
+void printErrorMessage(const char *msg);
 
 //============================================================================//
 //============================ GLOBAL VARIABLES ==============================//
@@ -54,22 +57,92 @@ int main(int argc, char *argv[])
 	char fileName[FILE_NAME_LENGTH] = { 0 };
 	int playerDeckCount = 0; // second value of first line
 	int tableDeckCount = 0;	// first value of first line
+	int retVal = -1;
 	Deck tableDeck;
 	Deck binDeck;
 	Deck firstPlayerDeck;
 	Deck secondPlayerDeck;
+	FILE *fd = NULL;
 
 	if (argc != 2)
 	{
-		std::cout << "ERROR : Invalid Argument\n" << std::endl;
-#if _WIN32
-		system("Pause");
-#endif		
+		printErrorMessage("ERROR : Invalid Argument\n");
 		return -1;
 	}
 
 	// get name of files that will be read
 	memcpy(fileName, argv[1], strlen(argv[1]));
+
+	fd = fopen(fileName, "r");
+	if (fd)
+	{
+		int tempVal = 0;
+
+		fscanf(fd, "%d%d", &tableDeckCount, &playerDeckCount);
+		if (tableDeckCount == 0 || playerDeckCount == 0)
+		{
+			printErrorMessage("ERROR : Read wrong Value from file(it is not integer)");
+			return -1;
+		}
+
+		// fill table deck
+		for (int i = 0; i < tableDeckCount; i++)
+		{
+			fscanf(fd, "%d", &tempVal);
+
+			retVal = tableDeck.fillDeck(tempVal);
+			if (retVal == -1)
+			{
+				break;
+			}
+		}
+
+		// fill first player's deck
+		if (retVal == 0)
+		{
+			for (int i = 0; i < playerDeckCount; i++)
+			{
+				fscanf(fd, "%d", &tempVal);
+
+				retVal = firstPlayerDeck.fillDeck(tempVal);
+				if (retVal == -1)
+				{
+					break;
+				}
+			}
+		}
+
+		// fill second player's deck
+		if (retVal == 0)
+		{
+			for (int i = 0; i < playerDeckCount; i++)
+			{
+				fscanf(fd, "%d", &tempVal);
+
+				retVal = secondPlayerDeck.fillDeck(tempVal);
+				if (retVal == -1)
+				{
+					break;
+				}
+			}
+		}
+
+		fclose(fd);
+
+		if (retVal == -1)
+		{
+			printErrorMessage("ERROR : Read wrong Value from file(it is not integer)");
+			return -1;
+		}
+
+		// start game
+
+	}
+	else
+	{
+		printErrorMessage("ERROR : File not opened\n");
+		return -1;
+	}
 
 
 #if _WIN32
@@ -81,7 +154,28 @@ int main(int argc, char *argv[])
 //============================================================================//
 //============================ PRIVATE FUNCTIONS =============================//
 //============================================================================//
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void printErrorMessage(const char *msg)
+{
+	std::cout << *msg << std::endl;
+}
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+bool isAvailableVal(int val)
+{
+	if (val == 0)
+	{
+		return false;
+	}
 
+	if (!(-1000000 < val || val < 1000000))
+	{
+		return false;
+	}
+
+	return true;
+}
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void Deck::create()
@@ -129,6 +223,12 @@ int Deck::pop()
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 bool Deck::isempty()
+{
+	return head == NULL;
+}
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+int Deck::fillDeck(int val)
 {
 	return head == NULL;
 }
