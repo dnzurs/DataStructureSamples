@@ -9,12 +9,14 @@
 //	Important Notes:
 //
 //============================================================================//
-#define _CRT_SECURE_NO_WARNINGS
 
 //============================================================================//
 //=============================== INCLUDES ===================================//
 //============================================================================//
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <iostream>
+#include <cstring>
 
 //============================================================================//
 //==========================  MACRO DEFINITIONS ==============================//
@@ -227,9 +229,10 @@ int playCardGame(GameDecks *decks)
 					}
 				}
 			}
+			// ToDo : Bu kýsým olmayabilir
 
 			// change current player
-			if (player = 1)
+			if (player == 1)
 			{
 				currPlayer = &decks->secondPlayerDeck;
 				nextPlayer = &decks->firstPlayerDeck;
