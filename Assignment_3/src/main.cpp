@@ -14,11 +14,14 @@
 //=============================== INCLUDES ===================================//
 //============================================================================//
 #include <iostream>
+#include <string>
 
 //============================================================================//
 //==========================  MACRO DEFINITIONS ==============================//
 //============================================================================//
 #define FILE_NAME_LENGTH	(256)
+#define SUCCESS				(0)
+#define FAILURE				(-1)
 
 //============================================================================//
 //=========================== TYPE DEFINITIONS ===============================//
@@ -30,6 +33,7 @@ struct Node {
 
 struct Deck{
 	Node *head;
+	int count;
 	void create();
 	void close();
 	void push(int val);
@@ -38,11 +42,19 @@ struct Deck{
 	int fillDeck(int val);
 };
 
+struct GameDecks {
+	Deck tableDeck;
+	Deck binDeck;
+	Deck firstPlayerDeck;
+	Deck secondPlayerDeck;
+	char winningPlayer;
+	char currPlayer;
+};
+
 //============================================================================//
 //========================== FUNCTION PROTOTYPES =============================//
 //============================================================================//
-bool isAvailableVal(int val);
-void printErrorMessage(const char *msg);
+int initializeDecks(GameDecks *decks, const char *fileName);
 
 //============================================================================//
 //============================ GLOBAL VARIABLES ==============================//
@@ -55,99 +67,34 @@ void printErrorMessage(const char *msg);
 int main(int argc, char *argv[])
 {
 	char fileName[FILE_NAME_LENGTH] = { 0 };
-	int playerDeckCount = 0; // second value of first line
-	int tableDeckCount = 0;	// first value of first line
-	int retVal = -1;
-	Deck tableDeck;
-	Deck binDeck;
-	Deck firstPlayerDeck;
-	Deck secondPlayerDeck;
-	FILE *fd = NULL;
+	int retVal = SUCCESS;
+	GameDecks decks;
+
 
 	if (argc != 2)
 	{
-		printErrorMessage("ERROR : Invalid Argument\n");
-		return -1;
-	}
-
-	// get name of files that will be read
-	memcpy(fileName, argv[1], strlen(argv[1]));
-
-	fd = fopen(fileName, "r");
-	if (fd)
-	{
-		int tempVal = 0;
-
-		fscanf(fd, "%d%d", &tableDeckCount, &playerDeckCount);
-		if (tableDeckCount == 0 || playerDeckCount == 0)
-		{
-			printErrorMessage("ERROR : Read wrong Value from file(it is not integer)");
-			return -1;
-		}
-
-		// fill table deck
-		for (int i = 0; i < tableDeckCount; i++)
-		{
-			fscanf(fd, "%d", &tempVal);
-
-			retVal = tableDeck.fillDeck(tempVal);
-			if (retVal == -1)
-			{
-				break;
-			}
-		}
-
-		// fill first player's deck
-		if (retVal == 0)
-		{
-			for (int i = 0; i < playerDeckCount; i++)
-			{
-				fscanf(fd, "%d", &tempVal);
-
-				retVal = firstPlayerDeck.fillDeck(tempVal);
-				if (retVal == -1)
-				{
-					break;
-				}
-			}
-		}
-
-		// fill second player's deck
-		if (retVal == 0)
-		{
-			for (int i = 0; i < playerDeckCount; i++)
-			{
-				fscanf(fd, "%d", &tempVal);
-
-				retVal = secondPlayerDeck.fillDeck(tempVal);
-				if (retVal == -1)
-				{
-					break;
-				}
-			}
-		}
-
-		fclose(fd);
-
-		if (retVal == -1)
-		{
-			printErrorMessage("ERROR : Read wrong Value from file(it is not integer)");
-			return -1;
-		}
-
-		// start game
-
+		std::cout << "ERROR : Invalid Argument\n" << std::endl;
+		retVal = FAILURE;
 	}
 	else
 	{
-		printErrorMessage("ERROR : File not opened\n");
-		return -1;
-	}
+		// get name of files that will be read
+		memcpy(fileName, argv[1], strlen(argv[1]));
 
+		// fill all decks
+		retVal = initializeDecks(&decks, fileName);
+
+		// play game
+		
+	}
 
 #if _WIN32
 	system("Pause");
 #endif	
+	if (retVal == FAILURE)
+	{
+		return -1;
+	}
 	return 0;
 }
 
@@ -156,31 +103,103 @@ int main(int argc, char *argv[])
 //============================================================================//
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void printErrorMessage(const char *msg)
+int initializeDecks(GameDecks *decks, const char *fileName)
 {
-	std::cout << *msg << std::endl;
-}
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-bool isAvailableVal(int val)
-{
-	if (val == 0)
+	int playerDeckCount = 0; // second value of first line
+	int tableDeckCount = 0;	// first value of first line
+	int retVal = SUCCESS;
+	FILE *fd = NULL;
+
+	// create decks
+	decks->tableDeck.create();
+	decks->binDeck.create();
+	decks->firstPlayerDeck.create();
+	decks->secondPlayerDeck.create();
+
+	fd = fopen(fileName, "r");
+	if (fd)
 	{
-		return false;
+		int tempVal = 0;
+
+		// read deck member's count
+		fscanf(fd, "%d%d", &tableDeckCount, &playerDeckCount);
+		if (tableDeckCount == 0 || playerDeckCount == 0)
+		{
+			retVal = FAILURE;
+		}
+
+		// fill table deck
+		if (retVal == SUCCESS)
+		{
+			for (int i = 0; i < tableDeckCount; i++)
+			{
+				fscanf(fd, "%d", &tempVal);
+
+				retVal = decks->tableDeck.fillDeck(tempVal);
+				if (retVal == FAILURE)
+				{
+					break;
+				}
+			}
+		}
+
+		// fill first player's deck
+		if (retVal == SUCCESS)
+		{
+			for (int i = 0; i < playerDeckCount; i++)
+			{
+				fscanf(fd, "%d", &tempVal);
+
+				retVal = decks->firstPlayerDeck.fillDeck(tempVal);
+				if (retVal == FAILURE)
+				{
+					break;
+				}
+			}
+		}
+
+		// fill second player's deck
+		if (retVal == SUCCESS)
+		{
+			for (int i = 0; i < playerDeckCount; i++)
+			{
+				fscanf(fd, "%d", &tempVal);
+
+				retVal = decks->secondPlayerDeck.fillDeck(tempVal);
+				if (retVal == FAILURE)
+				{
+					break;
+				}
+			}
+		}
+
+		fclose(fd);
+
+		if (retVal == FAILURE)
+		{
+			std::cout << "ERROR : Read wrong Value from file(it is not integer)\n" << std::endl;
+
+			// free if decks have members
+			decks->tableDeck.close();
+			decks->binDeck.close();
+			decks->firstPlayerDeck.close();
+			decks->secondPlayerDeck.close();
+		}
+	}
+	else
+	{
+		std::cout << "ERROR : File not opened\n" << std::endl;
+		retVal = FAILURE;
 	}
 
-	if (!(-1000000 < val || val < 1000000))
-	{
-		return false;
-	}
-
-	return true;
+	return retVal;
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void Deck::create()
 {
 	head = NULL;
+	count = 0;
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -194,6 +213,8 @@ void Deck::close()
 		head = head->next;
 		delete p;
 	}
+
+	count = 0;
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -204,6 +225,7 @@ void Deck::push(int val)
 	newNode->data = val;
 	newNode->next = head;
 	head = newNode;
+	count++;
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -217,6 +239,7 @@ int Deck::pop()
 	temp = topNode->data;
 
 	delete topNode;
+	count--;
 
 	return temp;
 }
@@ -230,5 +253,12 @@ bool Deck::isempty()
 //------------------------------------------------------------------------------
 int Deck::fillDeck(int val)
 {
-	return head == NULL;
+	if (!(val < -1000000 || val > 1000000 || val == 0))
+	{
+		return FAILURE;
+	}
+
+	push(val);
+
+	return SUCCESS;
 }
