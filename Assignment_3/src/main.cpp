@@ -10,11 +10,11 @@
 //
 //============================================================================//
 #define _CRT_SECURE_NO_WARNINGS
+
 //============================================================================//
 //=============================== INCLUDES ===================================//
 //============================================================================//
 #include <iostream>
-#include <string>
 
 //============================================================================//
 //==========================  MACRO DEFINITIONS ==============================//
@@ -23,14 +23,22 @@
 #define SUCCESS				(0)
 #define FAILURE				(-1)
 
+#define MAX_DECK_MEMBER_COUNT		(1000)
+#define MIN_DECK_MEMBER_COUNT		(0)
+
+#define MAX_DECK_DATA_VALUE			(1000000)
+#define MIN_DECK_DATA_VALUE			(-1000000)
+
 //============================================================================//
 //=========================== TYPE DEFINITIONS ===============================//
 //============================================================================//
+// Member of Stack Decks
 struct Node {
 	int data;
 	Node *next;
 };
 
+// Stack of Decks
 struct Deck{
 	Node *head;
 	int count;
@@ -38,23 +46,24 @@ struct Deck{
 	void close();
 	void push(int val);
 	int  pop();
-	bool isempty();
+	bool isEmpty();
 	int fillDeck(int val);
 };
 
+// Struct of All Decks of Game
 struct GameDecks {
 	Deck tableDeck;
 	Deck binDeck;
 	Deck firstPlayerDeck;
 	Deck secondPlayerDeck;
-	char winningPlayer;
-	char currPlayer;
+	int winningPlayer;
 };
 
 //============================================================================//
 //========================== FUNCTION PROTOTYPES =============================//
 //============================================================================//
 int initializeDecks(GameDecks *decks, const char *fileName);
+int playCardGame(GameDecks *decks);
 
 //============================================================================//
 //============================ GLOBAL VARIABLES ==============================//
@@ -69,8 +78,7 @@ int main(int argc, char *argv[])
 	char fileName[FILE_NAME_LENGTH] = { 0 };
 	int retVal = SUCCESS;
 	GameDecks decks;
-
-
+	
 	if (argc != 2)
 	{
 		std::cout << "ERROR : Invalid Argument\n" << std::endl;
@@ -84,8 +92,27 @@ int main(int argc, char *argv[])
 		// fill all decks
 		retVal = initializeDecks(&decks, fileName);
 
-		// play game
-		
+		if (retVal == SUCCESS)
+		{
+			// play game
+			playCardGame(&decks);
+
+			// print winning player
+			if (decks.winningPlayer > 0)
+			{
+				std::cout << decks.winningPlayer << ". player wins." << std::endl;
+			}
+			else
+			{
+				std::cout << "No player wins." << std::endl;
+			}
+
+			// free members
+			decks.tableDeck.close();
+			decks.binDeck.close();
+			decks.firstPlayerDeck.close();
+			decks.secondPlayerDeck.close();
+		}
 	}
 
 #if _WIN32
@@ -101,6 +128,140 @@ int main(int argc, char *argv[])
 //============================================================================//
 //============================ PRIVATE FUNCTIONS =============================//
 //============================================================================//
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+int playCardGame(GameDecks *decks)
+{
+	int retVal = SUCCESS;
+	int cardFromTableDeck = 0;
+	char player = 1; // first player starts firstly
+	Deck *currPlayer = &decks->firstPlayerDeck; // first player starts firstly
+	Deck *nextPlayer = &decks->secondPlayerDeck;
+
+	// initialize winning player as first player. It will be updated at end of function. 
+	decks->winningPlayer = 1;
+
+	if (decks->tableDeck.count > 0)
+	{
+		while (true)
+		{
+			// get card from tableDeck
+			cardFromTableDeck = decks->tableDeck.pop();
+
+			// if card is less than 0, current player gives card to next player
+			if (cardFromTableDeck < 0)
+			{
+				int counter = -cardFromTableDeck;
+				int cardValueOfCurrDeck = 0;
+				int cardValueOfNextDeck = 0;
+
+				while (counter--)
+				{
+					// get card from current player's deck
+					cardValueOfCurrDeck = currPlayer->pop();
+
+					// get card from next player's deck
+					cardValueOfNextDeck = nextPlayer->pop();
+
+					if (cardValueOfCurrDeck > cardValueOfNextDeck)
+					{
+						// firstly push top value of next deck to next deck again
+						nextPlayer->push(cardValueOfNextDeck);
+
+						// secondly push top value of current deck to next deck
+						nextPlayer->push(cardValueOfCurrDeck);
+					}
+					else
+					{
+						// firstly push top value of next deck to next deck again 
+						nextPlayer->push(cardValueOfNextDeck);
+
+						// secondly push top value of current deck to bin deck
+						decks->binDeck.push(cardValueOfCurrDeck);
+					}
+
+					// if current player's deck is finished, the game is finished
+					if (currPlayer->isEmpty())
+					{
+						break;
+					}
+				}
+			}
+
+			// ToDo : Bu kýsým olmayabilir
+			// if card is more than 0, current player gets card from next player
+			if (cardFromTableDeck > 0)
+			{
+				int cardValueOfCurrDeck = 0;
+				int cardValueOfNextDeck = 0;
+
+				while (cardFromTableDeck--)
+				{
+					// get card from next player's deck
+					cardValueOfNextDeck = nextPlayer->pop();
+
+					// get card from current player's deck
+					cardValueOfCurrDeck = currPlayer->pop();
+					
+					if (cardValueOfNextDeck > cardValueOfCurrDeck)
+					{
+						// firstly push top value of current deck to curr deck again
+						currPlayer->push(cardValueOfCurrDeck);
+
+						// secondly push top value of next deck to curr deck
+						currPlayer->push(cardValueOfNextDeck);
+					}
+					else
+					{
+						// firstly push top value of next deck to curr deck again 
+						currPlayer->push(cardValueOfCurrDeck);
+
+						// secondly push top value of next deck to bin deck
+						decks->binDeck.push(cardValueOfCurrDeck);
+					}
+
+					// if next player's deck is finished, the game is finished
+					if (nextPlayer->isEmpty())
+					{
+						break;
+					}
+				}
+			}
+
+			// change current player
+			if (player = 1)
+			{
+				currPlayer = &decks->secondPlayerDeck;
+				nextPlayer = &decks->firstPlayerDeck;
+				player = 2;
+			}
+			else
+			{
+				currPlayer = &decks->firstPlayerDeck;
+				nextPlayer = &decks->secondPlayerDeck;
+				player = 1;
+			}
+
+			// if any deck is empty, game is finished
+			if (decks->tableDeck.isEmpty() || decks->firstPlayerDeck.isEmpty() || decks->secondPlayerDeck.isEmpty())
+			{
+				break;
+			}
+		}
+	}
+
+	// update winning player, if second player wins or there is no winning player
+	if (decks->firstPlayerDeck.count > decks->secondPlayerDeck.count)
+	{
+		decks->winningPlayer = 2;
+	}
+	else if (decks->firstPlayerDeck.count == decks->secondPlayerDeck.count)
+	{
+		decks->winningPlayer = 0;
+	}
+
+	return retVal;
+}
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 int initializeDecks(GameDecks *decks, const char *fileName)
@@ -123,7 +284,10 @@ int initializeDecks(GameDecks *decks, const char *fileName)
 
 		// read deck member's count
 		fscanf(fd, "%d%d", &tableDeckCount, &playerDeckCount);
-		if (tableDeckCount == 0 || playerDeckCount == 0)
+
+		// deck member count must be between 0 and 1000
+		if ( !(MIN_DECK_MEMBER_COUNT <= tableDeckCount && tableDeckCount <= MAX_DECK_MEMBER_COUNT) || 
+			 !(MIN_DECK_MEMBER_COUNT <= playerDeckCount && playerDeckCount <= MAX_DECK_MEMBER_COUNT) )
 		{
 			retVal = FAILURE;
 		}
@@ -177,7 +341,7 @@ int initializeDecks(GameDecks *decks, const char *fileName)
 
 		if (retVal == FAILURE)
 		{
-			std::cout << "ERROR : Read wrong Value from file(it is not integer)\n" << std::endl;
+			std::cout << "ERROR : The reading value is not within the specified range\n" << std::endl;
 
 			// free if decks have members
 			decks->tableDeck.close();
@@ -245,7 +409,7 @@ int Deck::pop()
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool Deck::isempty()
+bool Deck::isEmpty()
 {
 	return head == NULL;
 }
@@ -253,7 +417,7 @@ bool Deck::isempty()
 //------------------------------------------------------------------------------
 int Deck::fillDeck(int val)
 {
-	if (!(val < -1000000 || val > 1000000 || val == 0))
+	if (val < MIN_DECK_DATA_VALUE || val > MAX_DECK_DATA_VALUE || val == 0)
 	{
 		return FAILURE;
 	}
