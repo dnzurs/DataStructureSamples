@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 			// play game
 			playCardGame(&decks);
 
-			// print winning player
+			// print winning player if it is 1 or 2
 			if (decks.winningPlayer > 0)
 			{
 				std::cout << decks.winningPlayer << ". player wins." << std::endl;
@@ -190,6 +190,8 @@ int playCardGame(GameDecks *decks)
 				}
 			}
 
+
+
 			// ToDo : Bu kýsým olmayabilir
 			// if card is more than 0, current player gets card from next player
 			if (cardFromTableDeck > 0)
@@ -230,6 +232,8 @@ int playCardGame(GameDecks *decks)
 				}
 			}
 			// ToDo : Bu kýsým olmayabilir
+
+
 
 			// change current player
 			if (player == 1)
@@ -300,6 +304,8 @@ int initializeDecks(GameDecks *decks, const char *fileName)
 		{
 			for (int i = 0; i < tableDeckCount; i++)
 			{
+				tempVal = 0;
+
 				fscanf(fd, "%d", &tempVal);
 
 				retVal = decks->tableDeck.fillDeck(tempVal);
@@ -315,6 +321,8 @@ int initializeDecks(GameDecks *decks, const char *fileName)
 		{
 			for (int i = 0; i < playerDeckCount; i++)
 			{
+				tempVal = 0;
+
 				fscanf(fd, "%d", &tempVal);
 
 				retVal = decks->firstPlayerDeck.fillDeck(tempVal);
@@ -330,6 +338,8 @@ int initializeDecks(GameDecks *decks, const char *fileName)
 		{
 			for (int i = 0; i < playerDeckCount; i++)
 			{
+				tempVal = 0;
+
 				fscanf(fd, "%d", &tempVal);
 
 				retVal = decks->secondPlayerDeck.fillDeck(tempVal);
@@ -342,6 +352,13 @@ int initializeDecks(GameDecks *decks, const char *fileName)
 
 		fclose(fd);
 
+		// check whether all decks are filled by value or no
+		if (decks->tableDeck.count != tableDeckCount || decks->firstPlayerDeck.count != playerDeckCount || decks->secondPlayerDeck.count != playerDeckCount)
+		{
+			retVal = FAILURE;
+		}
+
+		// show error message and free memories
 		if (retVal == FAILURE)
 		{
 			std::cout << "ERROR : The reading value is not within the specified range\n" << std::endl;
