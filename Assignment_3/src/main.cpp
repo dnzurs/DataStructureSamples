@@ -1,12 +1,12 @@
 //============================================================================//
 //
-//	File Name	: assignment3.cpp
-//	Create Date	: 03.11.2018
-//	Designers	: Nebi Deniz Uras
-//	Number 	    : 504181527
-//	Description	: Data Structures Homework 3
+//	File Name		: main.cpp
+//	Create Date		: 03.11.2018
+//	Designers		: Nebi Deniz Uras
+//	Student Number	: 504181527
+//	Description		: Data Structures Assignment 3
 //
-//	Important Notes:
+//	Important Notes	:
 //
 //============================================================================//
 
@@ -21,13 +21,18 @@
 //============================================================================//
 //==========================  MACRO DEFINITIONS ==============================//
 //============================================================================//
-#define FILE_NAME_LENGTH	(256)
-#define SUCCESS				(0)
-#define FAILURE				(-1)
+#define FILE_NAME_LENGTH			(256)
 
+#define SUCCESS						(0)
+#define FAILURE						(-1)
+
+#define SHOW_THE_RESULT_OF_GAME		(0)
+
+// count range
 #define MAX_DECK_MEMBER_COUNT		(1000)
 #define MIN_DECK_MEMBER_COUNT		(0)
 
+// data range
 #define MAX_DECK_DATA_VALUE			(1000000)
 #define MIN_DECK_DATA_VALUE			(-1000000)
 
@@ -64,8 +69,8 @@ struct GameDecks {
 //============================================================================//
 //========================== FUNCTION PROTOTYPES =============================//
 //============================================================================//
-int initializeDecks(GameDecks *decks, const char *fileName);
-int playCardGame(GameDecks *decks);
+static int initializeDecks(GameDecks *decks, const char *fileName);
+static int playCardGame(GameDecks *decks);
 
 //============================================================================//
 //============================ GLOBAL VARIABLES ==============================//
@@ -99,7 +104,11 @@ int main(int argc, char *argv[])
 			// play game
 			playCardGame(&decks);
 
+			// print count of bin deck
+			std::cout << decks.binDeck.count << std::endl;
+
 			// print winning player if it is 1 or 2
+#if SHOW_THE_RESULT_OF_GAME		
 			if (decks.winningPlayer > 0)
 			{
 				std::cout << decks.winningPlayer << ". player wins." << std::endl;
@@ -108,6 +117,7 @@ int main(int argc, char *argv[])
 			{
 				std::cout << "No player wins." << std::endl;
 			}
+#endif
 
 			// free members
 			decks.tableDeck.close();
@@ -132,7 +142,7 @@ int main(int argc, char *argv[])
 //============================================================================//
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-int playCardGame(GameDecks *decks)
+static int playCardGame(GameDecks *decks)
 {
 	int retVal = SUCCESS;
 	int cardFromTableDeck = 0;
@@ -190,9 +200,6 @@ int playCardGame(GameDecks *decks)
 				}
 			}
 
-
-
-			// ToDo : Bu kýsým olmayabilir
 			// if card is more than 0, current player gets card from next player
 			if (cardFromTableDeck > 0)
 			{
@@ -231,9 +238,6 @@ int playCardGame(GameDecks *decks)
 					}
 				}
 			}
-			// ToDo : Bu kýsým olmayabilir
-
-
 
 			// change current player
 			if (player == 1)
@@ -271,7 +275,7 @@ int playCardGame(GameDecks *decks)
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-int initializeDecks(GameDecks *decks, const char *fileName)
+static int initializeDecks(GameDecks *decks, const char *fileName)
 {
 	int playerDeckCount = 0; // second value of first line
 	int tableDeckCount = 0;	// first value of first line
