@@ -40,14 +40,13 @@ struct queueAnt {
 	Node *back;
 	void create();
 	void close();
-	bool enqueue(int newData);
+	void enqueue(int newData);
 	int dequeue();
 	bool isempty();
 };
 
 struct stackAnt {
 	Node *head;
-	int count;
 	void create();
 	void close();
 	void push(int newData);
@@ -108,9 +107,56 @@ int main(int argc, char ** argv)
 /*************************** FUNCTIONS OF ANT STRUCTS *************************/
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Ants::ReadFile(char *)
+void Ants::ReadFile(char *fileName)
 {
+	FILE *fd = NULL;
 
+	fd = fopen(fileName, "r");
+	if (fd)
+	{
+		int tempVal = 0;
+
+		// create queues and stack
+		ants.create();
+		holeDepths.create();
+		hole.create();
+
+		// read count of ants
+		fscanf(fd, "%d", &tempVal);
+
+		// fill ants queue
+		for (int i = 1; i <= tempVal; i++)
+		{
+			ants.enqueue(i);
+		}
+
+		tempVal = 0;
+
+		// fill holeDepths queue
+		while (1)
+		{
+			fscanf(fd, "%d", &tempVal);
+			if (tempVal != 0)
+			{
+				holeDepths.enqueue(tempVal);
+			}
+
+			if(feof(fd))
+			{
+				break;
+			}
+		}
+
+		// fill hole stack
+		while(!holeDepths.isempty())
+		{
+			hole.push(holeDepths.dequeue());
+		}
+	}
+	else
+	{
+		std::cout << "ERROR : File not opened\n" << std::endl;
+	}
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -148,7 +194,7 @@ void queueAnt::close()
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool queueAnt::enqueue(int newData)
+void queueAnt::enqueue(int newData)
 {
 	Node *newnode = new Node;
 
