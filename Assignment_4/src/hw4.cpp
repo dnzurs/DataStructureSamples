@@ -215,7 +215,25 @@ void Ants::ShowContents(bool selectShowingQueue)
 //------------------------------------------------------------------------------
 void Ants::CrossRoad()
 {
+	while (!hole.isEmpty())
+	{
+		int *tempAntQueueInHole = NULL;
+		int countAntsInHole = hole.pop();
+		
+		tempAntQueueInHole = new int[countAntsInHole];
 
+		// ants come to hole
+		for (int i = 0; i < countAntsInHole; i++)
+		{
+			tempAntQueueInHole[i] = ants.dequeue();
+		}
+
+		// ants go from hole
+		for (int i = 0; i < countAntsInHole; i++)
+		{
+			ants.enqueue(tempAntQueueInHole[i]);
+		}
+	}
 }
 
 /*************************** FUNCTIONS OF queueAnt STRUCTS ********************/
