@@ -22,8 +22,6 @@ Date: 13.11.2018 */
 //============================================================================//
 //==========================  MACRO DEFINITIONS ==============================//
 //============================================================================//
-#define SUCCESS		(0)
-#define FAILURE		(-1)
 
 //============================================================================//
 //=========================== TYPE DEFINITIONS ===============================//
@@ -36,6 +34,7 @@ struct Node {
 };
 
 struct queueAnt {
+	int count;
 	Node *front;
 	Node *back;
 	void create();
@@ -46,6 +45,7 @@ struct queueAnt {
 };
 
 struct stackAnt {
+	int count;
 	Node *head;
 	void create();
 	void close();
@@ -84,7 +84,7 @@ int main(int argc, char ** argv)
 
 	a.ShowContents(1); // list ant sequence ( initially : 1, 2, ... , N)
 
-	std::cout << "The depth of holes are : ";
+	std::cout << "The depth of holes are: ";
 
 	a.ShowContents(0); // list depth of holes
 
@@ -133,17 +133,13 @@ void Ants::ReadFile(char *fileName)
 		tempVal = 0;
 
 		// fill holeDepths queue
-		while (1)
+		while (!feof(fd))
 		{
+			// read holeDepths
 			fscanf(fd, "%d", &tempVal);
 			if (tempVal != 0)
 			{
 				holeDepths.enqueue(tempVal);
-			}
-
-			if(feof(fd))
-			{
-				break;
 			}
 		}
 
@@ -160,9 +156,60 @@ void Ants::ReadFile(char *fileName)
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Ants::ShowContents(bool)
+void Ants::ShowContents(bool selectShowingQueue)
 {
+	if (selectShowingQueue) // show list ant sequence 
+	{
+		int *tempAntQueue = NULL;
+		int tempCount = ants.count;
 
+		tempAntQueue = new int[tempCount];
+
+		// print ants queue 
+		for (int i = 0; i < tempCount; i++)
+		{
+			tempAntQueue[i] = ants.dequeue();
+			std::cout << tempAntQueue[i] << " ";
+		}
+
+		std::cout << std::endl;
+
+		// fill ants queue again
+		for (int i = 0; i < tempCount; i++)
+		{
+			ants.enqueue(tempAntQueue[i]);
+		}
+
+		delete tempAntQueue;
+	}
+	else  // show list holeDepths sequence
+	{
+		int *tempHoleStack = NULL;
+		int tempCount = hole.count;
+
+		tempHoleStack = new int[tempCount];
+
+		// print ants queue 
+		for (int i = 0; i < tempCount; i++)
+		{
+			tempHoleStack[i] = hole.pop();
+		}
+
+		for (int i = tempCount; i > 0; i--)
+		{
+			std::cout << tempHoleStack[i - 1] << " ";
+		}
+
+		std::cout << std::endl;
+
+		// fill ants queue again
+		for (int i = 0; i < tempCount; i++)
+		{
+			hole.push(tempHoleStack[i]);
+		}
+
+		delete tempHoleStack;
+	}
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -178,6 +225,7 @@ void queueAnt::create()
 {
 	front = NULL; 
 	back = NULL;
+	count = 0;
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -211,6 +259,8 @@ void queueAnt::enqueue(int newData)
 		back->next = newnode;
 		back = newnode;
 	}
+
+	count++;
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -224,6 +274,7 @@ int  queueAnt::dequeue()
 	temp = topnode->data;
 
 	delete topnode;
+	count--;
 
 	return temp;
 }
@@ -240,6 +291,7 @@ bool queueAnt::isempty()
 void stackAnt::create()
 {
 	head = NULL;
+	count = 0;
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -263,6 +315,8 @@ void stackAnt::push(int newData)
 	newnode->data = newData;
 	newnode->next = head;
 	head = newnode;
+
+	count++;
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -276,6 +330,7 @@ int  stackAnt::pop()
 	temp = topnode->data;
 
 	delete topnode;
+	count--;
 
 	return temp;
 }
