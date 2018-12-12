@@ -23,5 +23,14 @@
     <Text Include="src\test.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="src\calicoTest\camel.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="src\calicoTest\simple.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="src\calicoTest\single_hole.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

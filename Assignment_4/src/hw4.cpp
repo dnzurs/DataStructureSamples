@@ -82,7 +82,7 @@ int main(int argc, char ** argv)
 	a.ReadFile(argv[1]); // store the number of ants and depths of holes
 	std::cout << "The initial Ant sequence is: ";
 	a.ShowContents(1); // list ant sequence ( initially : 1, 2, ... , N)
-	std::cout << "The depth of holes are : ";
+	std::cout << "The depth of holes are: ";
 	a.ShowContents(0); // list depth of holes
 	a.CrossRoad();
 	std::cout << "The final Ant sequence is: ";
@@ -114,6 +114,7 @@ void Ants::ReadFile(char *fileName)
 	if (fd)
 	{
 		int tempVal = 0;
+		int lastHoleVal = 0;
 
 		// create queues and stack
 		ants.create();
@@ -132,13 +133,20 @@ void Ants::ReadFile(char *fileName)
 		tempVal = 0;
 
 		// fill holeDepths queue
-		while (!feof(fd))
+		while (1)
 		{
 			// read holeDepths
 			fscanf(fd, "%d", &tempVal);
+
+			if (feof(fd) && lastHoleVal == tempVal)
+			{
+				break;
+			}
+
 			if (tempVal != 0)
 			{
 				holeDepths.enqueue(tempVal);
+				lastHoleVal = tempVal;
 			}
 		}
 

@@ -116,6 +116,9 @@
     <ClCompile Include="src\hw4.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="src\calicoTest\camel.txt" />
+    <Text Include="src\calicoTest\simple.txt" />
+    <Text Include="src\calicoTest\single_hole.txt" />
     <Text Include="src\test.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
