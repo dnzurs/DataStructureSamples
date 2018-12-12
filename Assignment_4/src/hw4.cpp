@@ -236,7 +236,7 @@ void Ants::CrossRoad()
 		}
 
 		// ants go from hole
-		for (int i = 0; i < countAntsInHole; i++)
+		for (int i = countAntsInHole - 1; i >= 0; i--)
 		{
 			ants.enqueue(tempAntQueueInHole[i]);
 		}
