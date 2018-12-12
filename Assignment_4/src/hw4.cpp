@@ -1,7 +1,7 @@
 /* @Author
 Student Name: Nebi Deniz Uras
 Student ID : 504181527
-Date: 13.11.2018 */
+Date: 12.11.2018 */
 
 //============================================================================//
 //
@@ -18,6 +18,7 @@ Date: 13.11.2018 */
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
+#include <cstdio>
 
 //============================================================================//
 //==========================  MACRO DEFINITIONS ==============================//
@@ -79,20 +80,18 @@ int main(int argc, char ** argv)
 	Ants a;
 
 	a.ReadFile(argv[1]); // store the number of ants and depths of holes
-
 	std::cout << "The initial Ant sequence is: ";
-
 	a.ShowContents(1); // list ant sequence ( initially : 1, 2, ... , N)
-
-	std::cout << "The depth of holes are: ";
-
+	std::cout << "The depth of holes are : ";
 	a.ShowContents(0); // list depth of holes
-
 	a.CrossRoad();
-
 	std::cout << "The final Ant sequence is: ";
-
 	a.ShowContents(1);
+
+	// free memory
+	a.ants.close();
+	a.hole.close();
+	a.holeDepths.close();
 
 #if _WIN32
 	system("Pause");
