@@ -21,6 +21,10 @@
   <ItemGroup>
     <ClCompile Include="src\hw5.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="src\test\input.txt" />
+    <Text Include="src\test\no_paths.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{97CDA8C2-30CF-4446-93E4-F21B391EADC5}</ProjectGuid>
