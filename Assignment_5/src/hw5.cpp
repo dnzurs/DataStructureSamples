@@ -23,13 +23,18 @@ Date: 24.12.2018 */
 //============================================================================//
 //==========================  MACRO DEFINITIONS ==============================//
 //============================================================================//
+#define MEMBER_COUNT_OF_TREE	(250)
+
+#define RIGHT_PATH	(1)
+#define LEFT_PATH	(1)
 
 //============================================================================//
 //=========================== TYPE DEFINITIONS ===============================//
 //============================================================================//
 
 struct Node {
-	int number;
+	int data;
+	int index;
 	Node *left;
 	Node *right;
 };
@@ -42,10 +47,12 @@ struct Tree {
 	char *fileName;
 	void create();
 	void close();
-	void emptyTree(Node *);
-	void Tree::insert(Node *nodePtr, int val);
-	void traverse_preorder(Node *);
+	void emptyTree(Node *nodePtr);
+	void insert(int data, int index);
+	void traverse_preorder(Node *nodePtr);
 	void readFromFile();
+	Node* findNode(int index, Node *sourceNode);
+	Node* newNode(int data, int index);
 };
 
 //============================================================================//
@@ -55,6 +62,7 @@ struct Tree {
 //============================================================================//
 //============================ GLOBAL VARIABLES ==============================//
 //============================================================================//
+Node *searchNode = NULL; // node ptr for searching parent
 
 //============================================================================//
 //============================ PUBLIC FUNCTIONS ==============================//
@@ -72,6 +80,12 @@ int main(int argc, char ** argv)
 		tree.fileName = argv[1];
 
 		tree.create();
+		
+		Node * temp = tree.root;
+
+		tree.traverse_preorder(tree.root->left);
+
+		tree.traverse_preorder(tree.root->right);
 	}
 
 #if _WIN32
@@ -125,30 +139,59 @@ void Tree::emptyTree(Node *nodePtr)
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Tree::insert(Node *nodePtr, int val)
+void Tree::insert(int data, int index)
 {
-	if (nodePtr == NULL)
+	if (root == NULL && index == 1)
 	{
-		nodePtr = new Node;
-
-		nodePtr->number = val;
-		nodePtr->left = NULL;
-		nodePtr->right = NULL;
-
-		nodeCount++;
-
-		return;
+		root = newNode(data, index);
+	}
+	else if (index == 2)
+	{
+		root->left = newNode(data, index);
+	}
+	else if (index == 3)
+	{
+		root->right = newNode(data, index);
 	}
 	else
 	{
-		insert(nodePtr->left, val);
-		insert(nodePtr->right, val);
+		Node *tempNode = NULL;
+		int tempIndex = 0;
+
+		// clear last temp node
+		searchNode = NULL;
+
+		// find parent index of data
+		if (index % 2 == 0)
+		{
+			tempIndex = index;
+		}
+		else
+		{
+			tempIndex = index - 1;
+		}
+		tempIndex /= 2;
+
+		// find parent node of next data according to index
+		tempNode = findNode(tempIndex, root);
+
+		// insert data to right or left path according to odd or even
+		if (index % 2 == 0)
+		{
+			tempNode->left = newNode(data, index);
+		}
+		else
+		{
+			tempNode->right = newNode(data, index);
+		}
 	}
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void Tree::traverse_preorder(Node *nodePtr)
 {
+	int tempSum = root->data;
+
 
 }
 //------------------------------------------------------------------------------
@@ -160,28 +203,85 @@ void Tree::readFromFile()
 	fd = fopen(fileName, "r");
 	if (fd)
 	{
-		int tempVal = 0;
-		int lastVal = 0;
+		int tempArray[MEMBER_COUNT_OF_TREE] = { 0 };
+		int tempData = 0;
+		int lastData = 0;
 
 		while (1)
 		{
-			// read holeDepths
-			fscanf(fd, "%d", &tempVal);
+			// read from file
+			fscanf(fd, "%d", &tempData);
 
-			if (feof(fd) && lastVal == tempVal)
+			if (feof(fd) && lastData == tempData)
 			{
+				// set sum value for calculation
+				sumVal = tempArray[tempArray[0]];
+
+				// clear sum val index
+				tempArray[tempArray[0]] = 0;
+				tempArray[0]--;				
+
+				// set tree level
+				treeLevel = tempArray[0] / 2;
+
+				// set node count
+				nodeCount = tempArray[0];
+
 				break;
 			}
 
-			if (tempVal != 0)
+			// set temp array with members of tree while reading from file
+			if (tempData != 0)
 			{
-				insert(root, tempVal);
-				lastVal = tempVal;
+				tempArray[0]++;
+				lastData = tempData;
+				tempArray[tempArray[0]] = tempData;
 			}
+		}
+
+		// insert data to tree
+		for (int i = 1; i <= tempArray[0]; i++)
+		{
+			insert(tempArray[i], i);
 		}
 	}
 	else
 	{
 		std::cout << "ERROR : File not opened\n" << std::endl;
 	}
+}
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+Node* Tree::newNode(int data, int index)
+{
+	Node *temp = new Node;
+
+	temp->data = data;
+	temp->index = index;
+	temp->left = temp->right = NULL;
+
+	return temp;
+}
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+Node* Tree::findNode(int index, Node *sourceNode)
+{
+	if (searchNode != NULL)
+	{
+		return searchNode;
+	}
+
+	if (sourceNode != NULL)
+	{
+		if (index == sourceNode->index)
+		{
+			searchNode = sourceNode;
+			return searchNode;
+		}
+
+		searchNode = findNode(index, sourceNode->left);
+		searchNode = findNode(index, sourceNode->right);
+	}
+
+	return searchNode;
 }

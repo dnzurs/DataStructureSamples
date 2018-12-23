@@ -26,5 +26,8 @@
     <Text Include="src\test\no_paths.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="src\test\test.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
