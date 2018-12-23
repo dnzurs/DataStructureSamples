@@ -23,7 +23,8 @@ Date: 24.12.2018 */
 //============================================================================//
 //==========================  MACRO DEFINITIONS ==============================//
 //============================================================================//
-#define MEMBER_COUNT_OF_TREE	(250)
+#define MEMBER_COUNT_OF_TREE		(250)
+#define MEMBER_COUNT_OF_SUM_ARRAY	(50)
 
 #define RIGHT_PATH	(1)
 #define LEFT_PATH	(1)
@@ -53,6 +54,7 @@ struct Tree {
 	void readFromFile();
 	Node* findNode(int index, Node *sourceNode);
 	Node* newNode(int data, int index);
+	void printResult();
 };
 
 //============================================================================//
@@ -63,6 +65,10 @@ struct Tree {
 //============================ GLOBAL VARIABLES ==============================//
 //============================================================================//
 Node *searchNode = NULL; // node ptr for searching parent
+
+int sumArray[MEMBER_COUNT_OF_SUM_ARRAY] = { 0 };
+int sumArrayCount = 0;
+int tempSum = 0;
 
 //============================================================================//
 //============================ PUBLIC FUNCTIONS ==============================//
@@ -83,9 +89,24 @@ int main(int argc, char ** argv)
 		
 		Node * temp = tree.root;
 
+		// find left path according to sum
+		tempSum = tree.root->data;
+		sumArray[sumArrayCount++] = tempSum;
+
 		tree.traverse_preorder(tree.root->left);
 
+		tree.printResult();
+
+		// find right path according to sum
+		tempSum = tree.root->data;
+		sumArray[sumArrayCount++] = tempSum;
+
 		tree.traverse_preorder(tree.root->right);
+	
+		tree.printResult();
+
+		// free memory
+		tree.close();
 	}
 
 #if _WIN32
@@ -190,9 +211,29 @@ void Tree::insert(int data, int index)
 //------------------------------------------------------------------------------
 void Tree::traverse_preorder(Node *nodePtr)
 {
-	int tempSum = root->data;
+	if (tempSum == sumVal)
+	{
+		return;
+	}
 
+	if (tempSum > sumVal)
+	{
+		memset(sumArray, 0, sizeof(sumArray));
+		sumArrayCount = 0;
+		return;
+	}
 
+	if (tempSum < sumVal)
+	{
+		if (nodePtr != NULL)
+		{
+			tempSum += nodePtr->data;
+			sumArray[sumArrayCount++] = nodePtr->data;
+		}
+
+		traverse_preorder(nodePtr->left);
+		traverse_preorder(nodePtr->right);
+	}
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -284,4 +325,22 @@ Node* Tree::findNode(int index, Node *sourceNode)
 	}
 
 	return searchNode;
+}
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Tree::printResult()
+{
+	if (sumArrayCount == 0)
+	{
+		std::cout << "No Path Found\n";
+	}
+	else
+	{
+		std::cout << "Path Found: ";
+		for (int i = 0; i < sumArrayCount; i++)
+		{
+			std::cout << sumArray[i] << " ";
+		}
+		std::cout << std::endl;
+	}
 }
