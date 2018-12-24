@@ -26,9 +26,6 @@ Date: 24.12.2018 */
 #define MEMBER_COUNT_OF_TREE		(250)
 #define MEMBER_COUNT_OF_SUM_ARRAY	(50)
 
-#define RIGHT_PATH	(1)
-#define LEFT_PATH	(1)
-
 //============================================================================//
 //=========================== TYPE DEFINITIONS ===============================//
 //============================================================================//
@@ -55,6 +52,7 @@ struct Tree {
 	Node* findNode(int index, Node *sourceNode);
 	Node* newNode(int data, int index);
 	void printResult();
+	void checkResult();
 };
 
 //============================================================================//
@@ -87,8 +85,6 @@ int main(int argc, char ** argv)
 
 		tree.create();
 		
-		Node * temp = tree.root;
-
 		// find left path according to sum
 		tempSum = tree.root->data;
 		sumArray[sumArrayCount++] = tempSum;
@@ -98,11 +94,14 @@ int main(int argc, char ** argv)
 		tree.printResult();
 
 		// find right path according to sum
+		memset(sumArray, 0, sizeof(sumArray));
+		sumArrayCount = 0;
+
 		tempSum = tree.root->data;
 		sumArray[sumArrayCount++] = tempSum;
 
 		tree.traverse_preorder(tree.root->right);
-	
+
 		tree.printResult();
 
 		// free memory
@@ -211,18 +210,21 @@ void Tree::insert(int data, int index)
 //------------------------------------------------------------------------------
 void Tree::traverse_preorder(Node *nodePtr)
 {
-	if (tempSum == sumVal)
+	// if sum is equal to sum val, return for printing the true path
+	if (tempSum == sumVal || nodePtr == NULL)
 	{
 		return;
 	}
 
+	// if sum is greater than sum val, decreased last node data
 	if (tempSum > sumVal)
 	{
-		memset(sumArray, 0, sizeof(sumArray));
-		sumArrayCount = 0;
+		tempSum -= nodePtr->data;
+		sumArray[sumArrayCount--] = nodePtr->data;
 		return;
 	}
 
+	// if sum is less than sum val, go to next node of tree
 	if (tempSum < sumVal)
 	{
 		if (nodePtr != NULL)
@@ -330,9 +332,11 @@ Node* Tree::findNode(int index, Node *sourceNode)
 //------------------------------------------------------------------------------
 void Tree::printResult()
 {
+	checkResult();
+
 	if (sumArrayCount == 0)
 	{
-		std::cout << "No Path Found\n";
+		std::cout << "No Path Found" << std::endl;
 	}
 	else
 	{
@@ -342,5 +346,22 @@ void Tree::printResult()
 			std::cout << sumArray[i] << " ";
 		}
 		std::cout << std::endl;
+	}
+}
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Tree::checkResult()
+{
+	int tempSum = 0;
+
+	for (int i = 0; i < sumArrayCount; i++)
+	{
+		tempSum += sumArray[i];
+	}
+
+	if (tempSum != sumVal)
+	{
+		memset(sumArray, 0, sizeof(sumArray));
+		sumArrayCount = 0;
 	}
 }
